@@ -1,0 +1,46 @@
+name: Build Old British Cars V3 APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Extract V3 Project
+        run: |
+          mkdir -p _project
+          unzip -q OldBritishV3.zip -d _project
+          ROOT=$(find _project -mindepth 1 -maxdepth 1 -type d | head -1)
+          cp -R "$ROOT"/. .
+          test -f settings.gradle || test -f settings.gradle.kts
+          test -d app
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Build APK
+        run: |
+          gradle assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: OldBritishV3-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
