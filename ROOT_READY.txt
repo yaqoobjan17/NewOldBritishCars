@@ -1,0 +1,3 @@
+# Old British Cars AI Editor — Mobile Cloud Build
+
+This package is structured so the Android project is at the repository root after extraction.
